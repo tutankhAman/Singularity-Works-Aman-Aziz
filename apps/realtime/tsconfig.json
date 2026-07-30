@@ -1,0 +1,12 @@
+{
+  "extends": "../../packages/config/tsconfig/bun.json",
+  "compilerOptions": {
+    "target": "es2022",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*", "tests/**/*"]
+}
