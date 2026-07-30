@@ -7,7 +7,7 @@ import { handleOnClose } from "./handlers/on-close.js";
 import { handleOnMessage } from "./handlers/on-message.js";
 import { handleOnOpen } from "./handlers/on-open.js";
 import { validateSession } from "./handlers/validate-session.js";
-import type { LucidSessionMode, RealtimeSocket } from "./types.js";
+import type { LucidSessionMode, RealtimeSocket, SocketData } from "./types.js";
 
 const logger = createRootLogger({ service: "realtime" });
 
@@ -45,16 +45,32 @@ export const app = new Elysia()
         lastFrameTs: Date.now(),
       });
 
-      handleOnOpen(ws as unknown as RealtimeSocket);
+      const socket: RealtimeSocket = {
+        data: ws.data as unknown as SocketData,
+        send: ws.send.bind(ws),
+        close: ws.close.bind(ws),
+      };
+
+      handleOnOpen(socket);
     },
     message(ws, message) {
+      const socket: RealtimeSocket = {
+        data: ws.data as unknown as SocketData,
+        send: ws.send.bind(ws),
+        close: ws.close.bind(ws),
+      };
       handleOnMessage(
-        ws as unknown as RealtimeSocket,
+        socket,
         message as string | Buffer | ArrayBuffer | Uint8Array
       );
     },
     async close(ws) {
-      await handleOnClose(ws as unknown as RealtimeSocket);
+      const socket: RealtimeSocket = {
+        data: ws.data as unknown as SocketData,
+        send: ws.send.bind(ws),
+        close: ws.close.bind(ws),
+      };
+      await handleOnClose(socket);
     },
   });
 
