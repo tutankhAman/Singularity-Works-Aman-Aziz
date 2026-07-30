@@ -54,4 +54,6 @@ export const env = {
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID ?? "",
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET ?? "",
   SAMBANOVA_API_KEY: process.env.SAMBANOVA_API_KEY ?? "",
+  SAMBANOVA_TIER2_MODEL:
+    process.env.SAMBANOVA_TIER2_MODEL ?? "Meta-Llama-3.1-70B-Instruct",
 };
