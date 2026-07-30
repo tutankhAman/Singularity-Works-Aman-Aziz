@@ -10,8 +10,14 @@
     "migrate": "bun prisma migrate dev",
     "studio": "bun prisma studio"
   },
+  "main": "./src/client.ts",
+  "types": "./src/client.ts",
   "exports": {
-    ".": "./src/client.ts",
+    ".": {
+      "types": "./src/client.ts",
+      "import": "./src/client.ts",
+      "default": "./src/client.ts"
+    },
     "./prisma": "./prisma/generated/prisma/client.ts",
     "./generated/prisma": "./prisma/generated/prisma/client.ts",
     "./client": "./src/client.ts",
