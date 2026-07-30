@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { WS_AUDIO_TAG_MIC } from "@lucid/stt";
 import { app } from "../src/index.js";
 import { getActor } from "../src/session-actor.js";
 
@@ -86,7 +87,7 @@ describe("Realtime WebSocket Server Integration Tests", () => {
 
       // Send binary audio frame (tag 0 + 100 bytes PCM)
       const audioFrame = new Uint8Array(101);
-      audioFrame[0] = 0; // mic channel 0
+      audioFrame[0] = WS_AUDIO_TAG_MIC; // mic channel 0
       ws.send(audioFrame);
 
       // Close socket cleanly
