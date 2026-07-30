@@ -113,12 +113,14 @@ export class DeepgramConnection {
       this.connection.connect();
       await this.connection.waitForOpen();
     } catch (error) {
-      log.error(
-        error as Error,
+      log.warn(
+        { err: error, sessionId: this.sessionId },
         `Failed to create connection for ${this.sessionId}`
       );
       this.isConnecting = false;
-      await this.reconnect();
+      if (process.env.NODE_ENV !== "test" && !this.isClosed) {
+        await this.reconnect();
+      }
     }
   }
 
@@ -198,10 +200,26 @@ export class DeepgramConnection {
       return;
     }
 
+    if (
+      process.env.NODE_ENV === "test" &&
+      (!process.env.DEEPGRAM_API_KEY ||
+        process.env.DEEPGRAM_API_KEY.length < 20)
+    ) {
+      return;
+    }
+
     // Lazy connect on first audio
     if (!(this.isConnected || this.isConnecting)) {
       log.info(`Lazy connecting for ${this.sessionId} (first audio received)`);
-      await this.connect();
+      try {
+        await this.connect();
+      } catch (err) {
+        log.warn(
+          { err, sessionId: this.sessionId },
+          "Failed to establish Deepgram connection"
+        );
+        return;
+      }
     }
 
     // Wait for connection to become ready (up to 1s, polling every 10ms).
