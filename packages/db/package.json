@@ -1,0 +1,33 @@
+{
+  "name": "@lucid/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "generate": "bun prisma generate",
+    "push": "bun prisma db push",
+    "migrate": "bun prisma migrate dev",
+    "studio": "bun prisma studio"
+  },
+  "exports": {
+    ".": "./src/client.ts",
+    "./prisma": "./prisma/generated/prisma/client.ts",
+    "./generated/prisma": "./prisma/generated/prisma/client.ts",
+    "./client": "./src/client.ts",
+    "./redis": "./redis/index.ts",
+    "./redis/keys": "./redis/keys.ts",
+    "./redis/ttl": "./redis/ttl.ts"
+  },
+  "dependencies": {
+    "@lucid/logger": "workspace:*",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "ioredis": "^5.11.1"
+  },
+  "devDependencies": {
+    "@lucid/config": "workspace:*",
+    "@prisma/config": "^7.8.0",
+    "prisma": "^7.8.0"
+  }
+}
