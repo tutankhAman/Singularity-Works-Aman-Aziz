@@ -1,0 +1,38 @@
+{
+  "name": "lucid",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.3.14",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check-types": "turbo run check-types",
+    "check": "ultracite fix --unsafe",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "db:gen": "turbo run generate --filter=@lucid/db",
+    "db:push": "turbo run push --filter=@lucid/db",
+    "db:migrate": "turbo run migrate --filter=@lucid/db",
+    "db:studio": "turbo run studio --filter=@lucid/db",
+    "setup": "cp -n .env.example .env 2>/dev/null || true && bun install && bun docker:up"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.16",
+    "@types/bun": "^1.3.14",
+    "@types/node": "^26.0.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2",
+    "lefthook": "^2.1.9",
+    "lint-staged": "^17.0.8",
+    "turbo": "^2.10.7",
+    "typescript": "^5.7.2",
+    "ultracite": "7.8.3"
+  }
+}

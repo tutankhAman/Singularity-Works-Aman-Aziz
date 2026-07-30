@@ -1,0 +1,32 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: lucid-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - lucid-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: lucid-postgres
+    environment:
+      POSTGRES_USER: lucid
+      POSTGRES_PASSWORD: lucid
+      POSTGRES_DB: lucid
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lucid-network
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  lucid-network:
+    name: lucid-network
