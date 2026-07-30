@@ -10,6 +10,8 @@ export async function handleOnClose(ws: RealtimeSocket): Promise<void> {
   const { sessionId, userId, email, mode } = ws.data;
   log.info({ sessionId, userId }, "WebSocket connection closed");
 
+  // Extract actor before connection removal
+  const actor = getActor(sessionId, userId);
   const { isEmpty } = removeConnection(sessionId, userId, ws);
 
   if (isEmpty) {
@@ -26,35 +28,38 @@ export async function handleOnClose(ws: RealtimeSocket): Promise<void> {
     const streamer = removeAudioStreamer(sessionId);
     let s3Prefix = `${userId}/${sessionId}`;
     if (streamer) {
-      try {
-        await streamer.end();
-        s3Prefix = streamer.getS3Prefix();
-      } catch (err) {
-        log.error({ err, sessionId }, "Error ending AudioStreamer uploads");
+      if (!streamer.done) {
+        try {
+          await streamer.end();
+        } catch (err) {
+          log.error({ err, sessionId }, "Error ending AudioStreamer uploads");
+        }
       }
+      s3Prefix = streamer.getS3Prefix();
     }
 
     // Persist SessionActor RAM state to Redis
-    const actor = getActor(sessionId);
     if (actor) {
       await actor.persistToRedis();
     }
 
     // Enqueue offline batch transcription job via BullMQ
-    try {
-      await lucidTranscribeQueue.add("transcribe", {
-        sessionId,
-        s3Prefix,
-        email,
-        userId,
-        mode,
-      });
-      log.info(
-        { sessionId, s3Prefix },
-        "Enqueued lucidTranscribeJob successfully"
-      );
-    } catch (err) {
-      log.error({ err, sessionId }, "Failed to enqueue lucidTranscribeJob");
+    if (streamer) {
+      try {
+        await lucidTranscribeQueue.add("transcribe", {
+          sessionId,
+          s3Prefix,
+          email,
+          userId,
+          mode,
+        });
+        log.info(
+          { sessionId, s3Prefix },
+          "Enqueued lucidTranscribeJob successfully"
+        );
+      } catch (err) {
+        log.error({ err, sessionId }, "Failed to enqueue lucidTranscribeJob");
+      }
     }
   }
 }

@@ -108,18 +108,22 @@ export function getOrCreateActor(
   email: string,
   mode: LucidSessionMode
 ): SessionActor {
-  let actor = activeActors.get(sessionId);
+  const key = `${sessionId}:${userId}`;
+  let actor = activeActors.get(key);
   if (!actor) {
     actor = new SessionActor(sessionId, userId, email, mode);
-    activeActors.set(sessionId, actor);
+    activeActors.set(key, actor);
   }
   return actor;
 }
 
-export function getActor(sessionId: string): SessionActor | undefined {
-  return activeActors.get(sessionId);
+export function getActor(
+  sessionId: string,
+  userId: string
+): SessionActor | undefined {
+  return activeActors.get(`${sessionId}:${userId}`);
 }
 
-export function removeActor(sessionId: string): void {
-  activeActors.delete(sessionId);
+export function removeActor(sessionId: string, userId: string): void {
+  activeActors.delete(`${sessionId}:${userId}`);
 }

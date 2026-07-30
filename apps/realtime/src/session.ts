@@ -58,7 +58,7 @@ export function removeConnection(
 
   if (session.connections.size === 0) {
     sessions.delete(sessionId);
-    removeActor(sessionId);
+    removeActor(sessionId, userId);
     return { session, isEmpty: true };
   }
 

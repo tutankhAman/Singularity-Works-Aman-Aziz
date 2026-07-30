@@ -62,9 +62,9 @@ describe("SessionActor Unit Tests", () => {
 
   it("should register and cleanup global active actors", () => {
     const actor = getOrCreateActor("global-sess-1", "u1", "e1@a.com", "active");
-    expect(getActor("global-sess-1")).toBe(actor);
+    expect(getActor("global-sess-1", "u1")).toBe(actor);
 
-    removeActor("global-sess-1");
-    expect(getActor("global-sess-1")).toBeUndefined();
+    removeActor("global-sess-1", "u1");
+    expect(getActor("global-sess-1", "u1")).toBeUndefined();
   });
 });

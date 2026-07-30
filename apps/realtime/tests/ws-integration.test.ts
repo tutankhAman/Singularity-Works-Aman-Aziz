@@ -39,6 +39,7 @@ describe("Realtime WebSocket Server Integration Tests", () => {
     expect(signUpRes.status).toBe(200);
     const data = await signUpRes.json();
     const token = data.token;
+    const userId = data.user.id;
     expect(token).toBeDefined();
 
     // 2. Simulate WebSocket session lifecycle
@@ -78,7 +79,7 @@ describe("Realtime WebSocket Server Integration Tests", () => {
       await connectedPromise;
 
       // Verify SessionActor was instantiated in RAM
-      const actor = getActor(sessionId);
+      const actor = getActor(sessionId, userId);
       expect(actor).toBeDefined();
       expect(actor?.email).toBe(email);
       expect(actor?.mode).toBe("active");
