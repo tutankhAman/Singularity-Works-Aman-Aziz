@@ -1,6 +1,7 @@
 import { PassThrough } from "node:stream";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { WS_AUDIO_TAG_MIC, WS_AUDIO_TAG_SYS } from "@lucid/stt";
 import { log } from "../logger";
 
 export interface S3Config {
@@ -180,13 +181,13 @@ export class AudioStreamer {
     const buf = Buffer.isBuffer(pcm) ? pcm : Buffer.from(pcm);
     const now = Date.now();
 
-    if (tag === 0) {
+    if (tag === WS_AUDIO_TAG_MIC) {
       if (this.ch0StartedAt === null) {
         this.ch0StartedAt = now;
       }
       this.ch0Bytes += buf.byteLength;
       this.ch0Stream.write(buf);
-    } else if (tag === 1) {
+    } else if (tag === WS_AUDIO_TAG_SYS) {
       if (this.ch1StartedAt === null) {
         this.ch1StartedAt = now;
       }
