@@ -66,7 +66,10 @@ export function handleOnMessage(
         ws.send({ type: "pong", timestamp: Date.now() });
       }
     } catch {
-      log.warn({ sessionId }, "Failed to parse JSON text frame");
+      log.warn(
+        { sessionId, raw: message.slice(0, 200) },
+        "Failed to parse JSON text frame"
+      );
     }
   }
 }
