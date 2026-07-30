@@ -24,7 +24,8 @@ export function handleOnOpen(ws: RealtimeSocket): void {
   const { sessionId, userId, mode } = ws.data;
   log.info({ sessionId, userId, mode }, "WebSocket connection opened");
 
-  const _actor = addConnection(sessionId, ws);
+  // Registers actor in global map; side-effect only
+  addConnection(sessionId, ws);
 
   if (!activeStreamers.has(sessionId)) {
     const streamer = new AudioStreamer(userId, sessionId);
