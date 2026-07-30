@@ -1,18 +1,27 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
-let prismaSingleton: PrismaClient | null = null;
+let _prisma: PrismaClient | null = null;
+
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error("DATABASE_URL environment variable is not set");
+    }
+    const adapter = new PrismaPg({ connectionString });
+    _prisma = new PrismaClient({ adapter });
+  }
+  return _prisma;
+}
 
 export const prisma = new Proxy({} as PrismaClient, {
   get(_target, prop) {
-    if (!prismaSingleton) {
-      const connectionString = process.env.DATABASE_URL;
-      if (!connectionString) {
-        throw new Error("DATABASE_URL environment variable is not set");
-      }
-      const adapter = new PrismaPg({ connectionString });
-      prismaSingleton = new PrismaClient({ adapter });
+    const client = getPrisma();
+    const value = Reflect.get(client, prop);
+    if (typeof value === "function") {
+      return value.bind(client);
     }
-    return Reflect.get(prismaSingleton, prop);
+    return value;
   },
 });

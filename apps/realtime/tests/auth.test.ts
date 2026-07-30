@@ -37,39 +37,32 @@ describe("Realtime Auth Endpoints & Middleware", () => {
       })
     );
 
-    // If database is available, sign up succeeds with 200 or set-cookie / token
-    if (signUpRes.status === 200) {
-      const data = await signUpRes.json();
-      expect(data).toHaveProperty("user");
-      expect(data.user.email).toBe(email);
+    // If database is unavailable, this test should legitimately fail.
+    expect(signUpRes.status).toBe(200);
 
-      const token = data.token;
-      if (token) {
-        // Test bearer token authentication
-        const meRes = await app.handle(
-          new Request("http://localhost/api/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        );
-        expect(meRes.status).toBe(200);
-        const meBody = await meRes.json();
-        expect(meBody.user.email).toBe(email);
+    const data = await signUpRes.json();
+    expect(data).toHaveProperty("user");
+    expect(data.user.email).toBe(email);
 
-        // Test ?token= query parameter fallback (for WebSockets)
-        const wsRes = await app.handle(
-          new Request(`http://localhost/api/me?token=${token}`)
-        );
-        expect(wsRes.status).toBe(200);
-        const wsBody = await wsRes.json();
-        expect(wsBody.user.email).toBe(email);
-      }
-    } else {
-      // Print status if failed for debugging
-      console.log(
-        "Signup response status:",
-        signUpRes.status,
-        await signUpRes.text()
-      );
-    }
+    const token = data.token;
+    expect(token).toBeDefined();
+
+    // Test bearer token authentication
+    const meRes = await app.handle(
+      new Request("http://localhost/api/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+    expect(meRes.status).toBe(200);
+    const meBody = await meRes.json();
+    expect(meBody.user.email).toBe(email);
+
+    // Test ?token= query parameter fallback (for WebSockets)
+    const wsRes = await app.handle(
+      new Request(`http://localhost/api/me?token=${token}`)
+    );
+    expect(wsRes.status).toBe(200);
+    const wsBody = await wsRes.json();
+    expect(wsBody.user.email).toBe(email);
   });
 });
