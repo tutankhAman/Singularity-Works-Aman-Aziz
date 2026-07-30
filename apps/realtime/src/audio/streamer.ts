@@ -88,6 +88,13 @@ export class AudioStreamer {
     this.userId = userId;
     this.sessionId = sessionId;
     this.config = config ?? getS3Config();
+
+    if (
+      process.env.NODE_ENV !== "test" &&
+      !(this.config.accessKeyId && this.config.secretAccessKey)
+    ) {
+      log.warn("S3 credentials not configured — audio persistence disabled");
+    }
     this.ch0Bytes = 0;
     this.ch1Bytes = 0;
     this.ch0StartedAt = null;
@@ -134,12 +141,23 @@ export class AudioStreamer {
     this.ch0UploadPromise = this.ch0Upload.done();
     this.ch0UploadPromise.catch((error) => {
       log.error({ err: error, sessionId }, "S3 upload failed early for ch0");
+      this.destroy();
     });
 
     this.ch1UploadPromise = this.ch1Upload.done();
     this.ch1UploadPromise.catch((error) => {
       log.error({ err: error, sessionId }, "S3 upload failed early for ch1");
+      this.destroy();
     });
+  }
+
+  destroy(): void {
+    if (!this._done) {
+      this._done = true;
+      this.ch0Stream.destroy();
+      this.ch1Stream.destroy();
+    }
+    this.s3Client.destroy();
   }
 
   get done(): boolean {
